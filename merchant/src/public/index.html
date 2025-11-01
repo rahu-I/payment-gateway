@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant app</title>
+  </head>
+  <body>
+    <h1>This is the Merchant's website</h1>
+    <button id="call-payment-blocked-api">Call payment API at /api/payment-blocked (to demo cross-origin request blocking)</button>
+    <button id="call-payment-allowed-api">Call payment API at /api/payment-allowed (this will be allowed as that api explicitly allows merchant's origin)</button>
+    <p>Payment Gateway embedded below:</p>
+
+    <!-- Payment Gateway's iframe that renders card fields will be embedded here. -->
+    <div id="payment-gateway-container"></div>
+
+    <p id="tokenised-details-container"></p>
+
+    <!-- Payment Gateway SDK, loaded from the Payment Gateway's origin. -->
+    <script src="http://localhost:3005/sdk.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
