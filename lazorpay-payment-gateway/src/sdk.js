@@ -2,9 +2,8 @@
  * Loaded by and IN the merchant's origin (localhost:3000).
  */
 class LazorpaySDK {
-  iframeContainerId;
-  constructor(iframeContainerId, tokenReadyCallback) {
-    this.iframeContainerId = iframeContainerId;
+  constructor(iframeContainer, tokenReadyCallback) {
+    this.iframeContainer = iframeContainer;
     this.tokenReadyCallback = tokenReadyCallback;
 
     console.log("Lazorpay SDK Loaded.");
@@ -42,7 +41,7 @@ class LazorpaySDK {
   createAndLoadIframe() {
     const iframe = document.createElement("iframe");
     iframe.src = "http://localhost:3005/cardFields";
-    iframe.id = this.iframeContainerId;
-    this.iframeContainerId.appendChild(iframe);
+    iframe.id = "lazorpay-card-fields-iframe";
+    this.iframeContainer.appendChild(iframe);
   }
 }
