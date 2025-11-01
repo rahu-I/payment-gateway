@@ -4,7 +4,7 @@ A simplified demonstration of how real-world payment gateways (like Stripe, PayP
 
 ## 🎯 What is this project?
 
-This proof-of-concept demonstrates the **security architecture** used by payment gateway providers. It consists of two separate web applications:
+This poc demonstrates the **security architecture** used by payment gateway providers. It consists of two separate web applications:
 
 1. **Merchant Website** (`localhost:3000`) - An e-commerce site that needs to collect payments
 2. **Payment Gateway** (`localhost:3005`) - A payment processor (like Stripe) that handles sensitive card data
@@ -60,9 +60,9 @@ The key concept: **The merchant never directly accesses sensitive payment data**
 └───────────────────────────────────────────────────────────────────┘
 ```
 
-## 🔐 Browser Process Isolation (OS Level)
+## 🔐 Browser Process Isolation (How the same origin policy is handled by browsers at OS Level)
 
-Modern browsers use **Site Isolation** to render different origins in separate OS-level processes. This provides security even if one site is compromised.
+Modern browsers use **Site Isolation** to render different origins in separate OS-level processes. The operating system prevents processes from accessing each other's memory.
 
 ```
 ┌───────────────────────────────────────────────────────────────────────┐
@@ -114,15 +114,13 @@ Modern browsers use **Site Isolation** to render different origins in separate O
 └───────────────────────────────────────────────────────────────────────┘
 ```
 
-### Key Points about Process Isolation:
+### Key Points about Process Isolation and Same origin Policy:
 
 1. **Separate Memory Spaces**: Each origin runs in its own process with isolated memory
 2. **OS-Level Protection**: The operating system prevents processes from accessing each other's memory
-3. **IPC Communication**: The only way to communicate is through browser-controlled Inter-Process Communication (postMessage)
-4. **Sandboxing**: Renderer processes run with limited OS privileges
-5. **Security Boundary**: Even if one process is compromised, the attacker cannot directly read another process's memory
+3. **IPC Communication**: The only way to communicate is through browser-controlled Inter-Process Communication (exposed through window.postMessage API)
 
-## 📊 Communication Flow Diagram
+## 📊 Communication Flow
 
 ```
 ┌────────────────┐                                  ┌─────────────────┐
@@ -296,13 +294,13 @@ Before running this project, ensure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/proofs-of-concepts.git
-cd proofs-of-concepts/payment-gateway-security
+git clone https://github.com/<YOUR-GITHUB-USERNAME>/payment-gateway.git
+cd payment-gateway
 ```
 
 ### 2. Install Dependencies
 
-You need to install dependencies for both applications. Open two terminal windows and navigate to payment-gateway-security repo in them:
+You need to install dependencies for both applications (Merchant and SDK). Open two terminal windows and navigate to payment-gateway repo in them:
 
 In the first terminal window
 
@@ -322,9 +320,7 @@ npm install
 
 ### 3. Start Both Servers
 
-You'll need **two terminal windows**:
-
-**Terminal 1 - Once you are in merchant folder**
+**Terminal 1 - Run merchant app r**
 
 ```bash
 npm run serve
@@ -332,7 +328,7 @@ npm run serve
 
 You should see: `Merchant's website listening on port 3000`
 
-**Terminal 2 - Once you are in payment-gateway folder**
+**Terminal 2 - Run SDK r**
 
 ```bash
 npm run serve
@@ -348,7 +344,7 @@ Navigate to: `http://localhost:3000`
 
 ### Test 1: Same-Origin Policy & Variable Isolation
 
-1. Open browser DevTools (F12)
+1. Open browser DevTools
 2. Go to Console tab
 3. The merchant's `index.js` includes a demo that tries to access card fields:
    ```javascript
@@ -410,17 +406,10 @@ Navigate to: `http://localhost:3000`
 
 ✅ **Data Leakage** - Sensitive card data never touches merchant's JavaScript context
 
-✅ **Man-in-the-Middle on Merchant** - Even if merchant's HTTPS is compromised, payment gateway has its own secure connection
+✅ **Clickjacking** - An attacker can't underlay the payment sdk beneath their own site and trick users to accidently provide sensitive info. <https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/Clickjacking>
 
 ✅ **Merchant Database Breach** - Merchant only stores tokens, not actual card data
 
-### What This Architecture Does NOT Protect Against:
-
-❌ **Physical Access** - If attacker has DevTools access on victim's machine, they can inspect the iframe
-
-❌ **XSS on Payment Gateway** - If the payment gateway itself is compromised, protection fails
-
-❌ **Phishing** - If attacker tricks user to enter details on fake payment gateway
 
 ### Real-World Payment Gateways:
 
@@ -449,22 +438,7 @@ By exploring this project, you'll understand:
 9. **Tokenization** - How sensitive data is replaced with safe tokens
 10. **Origin Validation** - Critical security pattern for postMessage
 
-## 🎓 Further Exploration
-
-To extend your learning:
-
-1. **Add HTTPS** - Use self-signed certificates for both servers
-2. **Implement real tokenization** - Use crypto library instead of concatenation
-3. **Add server-side validation** - Validate origin on payment gateway API
-4. **Implement token expiration** - Tokens should expire after use
-5. **Add styling** - Make it look like a real payment form
-6. **Add 3D Secure / 2FA flow** - Implement additional authentication
-7. **Test with Content Security Policy Report-Only mode** - Learn CSP without breaking functionality
-8. **Add nonce to CSP** - For inline scripts security
-9. **Implement SRI (Subresource Integrity)** - Verify SDK integrity
-10. **Add rate limiting** - Prevent brute force attacks
-
-## 📚 Additional Resources
+## Useful Resources
 
 - [MDN: Same-Origin Policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy)
 - [MDN: postMessage API](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage)
@@ -475,14 +449,7 @@ To extend your learning:
 
 ## ⚠️ Disclaimer
 
-This is a **proof-of-concept for educational purposes only**. It demonstrates security concepts but is NOT production-ready:
-
-- No actual payment processing
-- Simplified tokenization (not secure for real use)
-- No HTTPS
-- No server-side validation
-- No encryption
-
+This is a **proof-of-concept for educational purposes only**. It demonstrates security concepts but is NOT production-ready.
 **Never use this code in production!** Use established payment gateway SDKs like Stripe, PayPal, or Razorpay for real applications.
 
 ## 📝 License
